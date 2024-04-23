@@ -1,6 +1,7 @@
-from .value import SensorValue
+from .abstract_sensor import AbstractSensor, SensorValue
 
-class HumidityLevelSensor:
+
+class HumidityLevelSensor(AbstractSensor):
     def __init__(self, pin):
         self.pin = pin
 
