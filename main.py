@@ -41,7 +41,7 @@ lcd = Lcd(
 )
 
 
-cycle = CycleTwo(
+cycle = CycleOne(
     config,
     temperature_1,
     temperature_2,

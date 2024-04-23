@@ -63,8 +63,4 @@ class AbatractCycle(ABC):
         time.sleep(10)
         self.power_inc_relay.set_state(0)
 
-    def step_one(self):
-        self.current_step = 1
-        self.start_time = time.time()
-        self.relay_pwr.set_state(1)
-        self.log_data()
+

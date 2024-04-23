@@ -17,6 +17,12 @@ class CycleTwo(AbatractCycle):
         self.t2_temperatures = []
         self.average_temperature = 0.0
 
+    def step_one(self):
+        self.current_step = 1
+        self.start_time = time.time()
+        self.relay_pwr.set_state(1)
+        self.log_data()
+
     def step_two(self):
         self.current_step = 2
         self.relay_cooler.set_state(1)
