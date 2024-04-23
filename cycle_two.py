@@ -9,6 +9,8 @@ import RPi.GPIO as GPIO
 class CycleTwo(AbatractCycle):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.start_time = 0
+        self.stop_time = 0
         self.current_step = 0
         self.warming_start_time = 0
         self.warming_time = 0
@@ -79,6 +81,9 @@ class CycleTwo(AbatractCycle):
         self.log_data()
 
     def run(self):
+        self.power_inc_relay.set_state(1)
+        time.sleep(10)
+        self.power_inc_relay.set_state(0)
         while True:
             try:
                 print(

@@ -7,6 +7,11 @@ import RPi.GPIO as GPIO
 
 
 class CycleOne(AbatractCycle):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.start_time = 0
+        self.stop_time = 0
+        self.current_step = 0
 
     def step_one(self):
         self.current_step = 1
@@ -36,6 +41,9 @@ class CycleOne(AbatractCycle):
         self.log_data()
 
     def run(self):
+        self.power_inc_relay.set_state(1)
+        time.sleep(10)
+        self.power_inc_relay.set_state(0)
         while True:
             try:
                 print(
@@ -67,10 +75,14 @@ class CycleOne(AbatractCycle):
                 self.restore_defaults()
                 self.lcd.clear()
                 self.lcd.display_text("ABORTED".center(16, "*"), 0, 0)
+                self.log_data()
+                logger.info("Interrupted by user")
                 GPIO.cleanup()
                 break
             except Exception as e:
                 self.restore_defaults()
                 print(str(e))
+                self.log_data()
+                logger.info(str(e))
                 GPIO.cleanup()
                 break

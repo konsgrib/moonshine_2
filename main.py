@@ -41,19 +41,27 @@ lcd = Lcd(
 )
 
 
+relays = {
+    "relay_pwr": power_relay,
+    "relay_cooler": cooler_relay,
+    "relay_v1": valve_1_relay,
+    "relay_v2": valve_2_relay,
+    "power_inc_relay": power_inc_relay,
+    "power_dec_relay": power_dec_relay,
+}
+sensors = {
+    "sensor_t1": temperature_1,
+    "sensor_t2": temperature_2,
+    "sensor_w1": water_1,
+    "sensor_w2": water_2,
+    "sensor_h1": humidity,
+}
+
+
 cycle = CycleOne(
     config,
-    temperature_1,
-    temperature_2,
-    water_1,
-    water_2,
-    humidity,
-    power_relay,
-    cooler_relay,
-    valve_1_relay,
-    valve_2_relay,
-    power_inc_relay,
-    power_dec_relay,
+    sensors,
+    relays,
     lcd,
 )
 cycle.run()
