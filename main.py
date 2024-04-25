@@ -1,6 +1,6 @@
+import RPi.GPIO as GPIO
+
 from yaml_reader import config_parser
-
-
 from event_loop import EventLoop
 from command import (
     OutputDeviceCommand,
@@ -9,7 +9,6 @@ from command import (
     RepeaterCommand,
 )
 
-import RPi.GPIO as GPIO
 
 GPIO.setmode(GPIO.BCM)
 
