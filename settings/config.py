@@ -6,10 +6,13 @@ config = {
     "work-time-minutes": 1,
     "work-normal-temperature": 28.2,
     "work-treshold-temperature": 28.5,
+    "humidity-treshold": 50,
     "cooler-stop-delay": 1,
     "power_inc_clicks": 3,
+    "buzzer": 26,
     "pins": {
-        "humidity": 26,
+        "humidity_1": 14,
+        "humidity_2": 15,
         "relay": {
             "power_relay_pin": 19,
             "cooler_relay_pin": 13,
@@ -23,6 +26,6 @@ config = {
         "buttons": {"cycle_1_pin": 9, "cycle_2_pin": 10, "cycle_3_pin": 11},
     },
     "one-wire": {
-        "temperature": {"sensor_1": "28-0214811929ff", "sensor_2": "28-0417301b9dff"}
+        "temperature": {"sensor_1": "28-42f7d445552f", "sensor_2": "28-5be6d445359c"}
     },
 }

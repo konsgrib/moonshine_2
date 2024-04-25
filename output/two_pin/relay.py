@@ -1,18 +1,9 @@
 import RPi.GPIO as GPIO
+from .abstract_two_pin import AbstractTwoPin, TwoPinValue
 from logger import logger
 
 
-class RelayValue:
-    def __init__(self, status_code, value, message):
-        self.status_code = status_code
-        self.value = value
-        self.message = message
-
-    def __repr__(self):
-        return str(self.__dict__)
-
-
-class Relay:
+class Relay(AbstractTwoPin):
     def __init__(self, pin):
         self.pin = pin
         GPIO.setup(self.pin, GPIO.OUT)
@@ -26,16 +17,16 @@ class Relay:
                 state = self.get_value()
                 if new_state == state.value:
                     logger.info(f"RELAY: {self.pin} set to {new_state}")
-                    return RelayValue(200, state.value, "OK")
-                return RelayValue(500, state.value, "NOK")
-            return RelayValue(200, state, "OK")
+                    return TwoPinValue(200, state.value, "OK")
+                return TwoPinValue(500, state.value, "NOK")
+            return TwoPinValue(200, state, "OK")
         except Exception as e:
             logger.error(f"RELAY: {self.pin} failed to set to {new_state}")
-            return RelayValue(500, state.value, str(e))
+            return TwoPinValue(500, state.value, str(e))
 
-    def get_value(self) -> RelayValue:
+    def get_value(self) -> TwoPinValue:
         try:
             state_pin = GPIO.input(self.pin)
-            return RelayValue(200, state_pin, "OK")
+            return TwoPinValue(200, state_pin, "OK")
         except Exception as e:
-            return RelayValue(500, str(e), "NOK")
+            return TwoPinValue(500, str(e), "NOK")
