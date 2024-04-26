@@ -9,22 +9,21 @@ from command import (
 )
 
 
-def config_parser(config_yaml):
+def read_yaml_config(config_yaml):
     with open(config_yaml) as f:
         config = yaml.safe_load(f)
+    return config
 
-    devices = {
-        device: Relay(pin) for device, pin in config["devices"]["relays"].items()
-    }
-    sensors = {}
-    for sensor_config in config["devices"]["sensors"]:
-        sensor_type = sensor_config["type"]
-        sensor_name = sensor_config["name"]
-        sensor_id = sensor_config["sensor_id"]
-        sensors[sensor_name] = Factory().create_sensor(sensor_type, sensor_id)
+def get_devices(config):
+    devices =config["devices"]
+    return devices
 
-    devices.update(sensors)
-    return config, devices
+
+
+def get_programs(config): 
+    programs = {program: details for program, details in config["programs"].items()}
+    return programs
+
 
 
 def create_events_queue(program, config, devices):

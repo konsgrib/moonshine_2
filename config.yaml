@@ -11,21 +11,21 @@ power_dec_pressed_time: 0.152
 pins:
   humidity_1: &sensor_hum 14
   humidity_2: 15
-  buzzer: 26
+  buzzer: &buzzer_pin 26
   relay:
     power_relay_pin: &rel_pwr_pin 19
     cooler_relay_pin: &rel_cool_pin 13
-    valve_1_relay_pin: 6
-    valve_2_relay_pin: 5
+    valve_1_relay_pin: &valve_1_pin 6
+    valve_2_relay_pin: &valve_2_pin 5
     power_inc_pin: &relay_inc_pin 23
     power_dec_pin: &relay_dec_pin 24
   water_level:
     water_pin_1: &water_pin_1 17
     water_pin_2: &water_pin_2 27
   lcd:
-    data_pin: 7
-    clk_pin: 8
-    reset_pin: 25
+    data_pin: &lcd_data 7
+    clk_pin: &lcd_clk 8
+    reset_pin: &lcd_reset 25
   buttons:
     cycle_1_pin: 9
     cycle_2_pin: 10
@@ -39,6 +39,11 @@ devices:
     power_relay: *rel_pwr_pin
     cooler_relay: *rel_cool_pin
     power_inc_relay: *relay_inc_pin
+    valve_1_relay: *valve_1_pin
+    valve_2_relay: *valve_2_pin
+  buzzer: 
+    - type: Buzzer
+      pin: *buzzer_pin
   sensors:
     - type: TempertureSensor
       name: temperature_1
@@ -49,7 +54,15 @@ devices:
     - type: WaterLevelSensor
       name: water_1
       sensor_id: *water_pin_1
-event_loop_commands:
+  display:
+    - type: LcdDisplay
+      data_pin: *lcd_data
+      clk_pin: *lcd_clk
+      reset_pin: *lcd_reset
+  messenger:
+    - type: MessengerFile
+      filename: state.txt
+programs:
   cycle_1:
     - type: OutputDeviceCommand
       device: power_relay
@@ -90,3 +103,12 @@ event_loop_commands:
     - type: StateUpdateCommand
       device: temperature_1
       state: *min_t
+  cleanup:
+    - type: OutputDeviceCommand
+      device: power_relay
+      action: "off"
+    - type: DelayCommand
+      delay: *cooler_delay
+    - type: OutputDeviceCommand
+      device: cooler_relay
+      action: "off"

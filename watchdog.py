@@ -11,7 +11,7 @@ import subprocess
 import psutil
 from settings.config import config
 from lcd.lcd import Lcd
-from sensor.factory import SensorFactory
+from sensor.factory import Factory
 from output.two_pin.buzzer import Buzzer
 from output.two_pin.relay import Relay
 
@@ -22,7 +22,7 @@ GPIO.setmode(GPIO.BCM)
 cycle_1_bt_pin = config["pins"]["buttons"]["cycle_1_pin"]
 cycle_2_bt_pin = config["pins"]["buttons"]["cycle_2_pin"]
 
-factory = SensorFactory()
+factory = Factory()
 humidity = factory.create_sensor("HumidityLevelSensor", config["pins"]["humidity_1"])
 temperature_1 = factory.create_sensor(
     "TempertureSensor", config["one-wire"]["temperature"]["sensor_1"]

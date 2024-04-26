@@ -8,7 +8,7 @@ class Buzzer(AbstractTwoPin):
         GPIO.setup(self.pin, GPIO.OUT)
         self.frequency = 50
         self.pwm = GPIO.PWM(self.pin, self.frequency)
-        self.set_state(0)
+        self.pwm.stop()
 
     def set_state(self, new_state):
         if new_state == 1:
@@ -16,6 +16,7 @@ class Buzzer(AbstractTwoPin):
             self.pwm.ChangeFrequency(2800)
         else:
             self.pwm.stop()
+            GPIO.output(self.pin, GPIO.LOW)
 
     def get_value(self) -> TwoPinValue:
         try:

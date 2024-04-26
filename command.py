@@ -50,7 +50,7 @@ class StateUpdateCommand(Command):
 
 
 class RepeaterCommand(Command):
-    def __init__(self, cmd, repeat_count):
+    def __init__(self, cmd: Command, repeat_count: int):
         self.cmd = cmd
         self.repeat_count = repeat_count
 
@@ -76,3 +76,28 @@ class CounterAVGCommand(Command):
             )
             self.values.append(self.sensor.get_value().value)
             self.average_value = sum(self.values) / len(self.values)
+
+
+class RecurringCommand:
+    def __init__(self, command, repeat_times=None):
+        self.command = command
+        self.counter = 0
+        self.repeat_times = repeat_times
+
+    def execute(self, event_loop):
+        if self.repeat_times:
+            self.command.execute(event_loop)
+            self.counter += 1
+            if self.counter < self.repeat_times:
+                event_loop.add(self)
+        else:
+            self.command.execute(event_loop)
+            event_loop.add(self)
+
+
+class PrintCommand(Command):
+    def __init__(self, text):
+        self.text = text
+
+    def execute(self, event_loop):
+        print(self.text)

@@ -1,5 +1,5 @@
 import time
-from sensor.factory import SensorFactory
+from sensor.factory import Factory
 from output.two_pin.relay import Relay
 from settings.config import config
 
@@ -26,7 +26,7 @@ work_time = config["work-time-minutes"] * 60
 power_dec_pressed_time = 0.152
 
 
-factory = SensorFactory()
+factory = Factory()
 temperature_1 = factory.create_sensor(
     "TempertureSensor", config["one-wire"]["temperature"]["sensor_1"]
 )

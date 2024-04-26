@@ -2,7 +2,7 @@ import time
 from multiprocessing import Process
 
 from datetime import datetime
-from sensor.factory import SensorFactory
+from sensor.factory import Factory
 from output.two_pin.relay import Relay
 from output.two_pin.buzzer import Buzzer
 from settings.config import config
@@ -13,7 +13,7 @@ from cycle_two import CycleTwo
 
 GPIO.setmode(GPIO.BCM)
 
-factory = SensorFactory()
+factory = Factory()
 temperature_1 = factory.create_sensor(
     "TempertureSensor", config["one-wire"]["temperature"]["sensor_1"]
 )

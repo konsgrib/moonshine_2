@@ -1,0 +1,110 @@
+min-temperature: &min_t 25.2
+max-temperature: &max_t 28.5
+power-on-low-temperature: 30
+warming-time-minutes: 1
+work-time-minutes: 1
+humidity-treshold: 80
+cooler-stop-delay: &cooler_delay 30
+power_inc_clicks: &restore_power 50
+power_inc_click_time: &restore_click_time 0.5
+power_dec_pressed_time: 0.152
+pins:
+  humidity_1: &sensor_hum 14
+  humidity_2: 15
+  buzzer: &buzzer_pin 26
+  relay:
+    power_relay_pin: &rel_pwr_pin 19
+    cooler_relay_pin: &rel_cool_pin 13
+    valve_1_relay_pin: &valve_1_pin 6
+    valve_2_relay_pin: &valve_2_pin 5
+    power_inc_pin: &relay_inc_pin 23
+    power_dec_pin: &relay_dec_pin 24
+  water_level:
+    water_pin_1: &water_pin_1 17
+    water_pin_2: &water_pin_2 27
+  lcd:
+    data_pin: &lcd_data 7
+    clk_pin: &lcd_clk 8
+    reset_pin: &lcd_reset 25
+  buttons:
+    cycle_1_pin: 9
+    cycle_2_pin: 10
+    cycle_3_pin: 11
+one-wire:
+  temperature:
+    sensor_1: &t1_id 28-42f7d445552f
+    sensor_2: &t2_id 28-5be6d445359c
+devices:
+    - type: Relay
+      name: power_relay 
+      pin: *rel_pwr_pin
+    - type: Relay
+      name: cooler_relay
+      pin:  *rel_cool_pin
+    - type: Relay
+      name: power_inc_relay
+      pin: *relay_inc_pin
+    - type: Relay
+      name: valve_1_relay
+      pin: *valve_1_pin
+    - type: Relay
+      name: valve_2_relay
+      pin: *valve_2_pin
+    - type: Buzzer
+      name: buzzer
+      pin: *buzzer_pin
+    - type: TempertureSensor
+      name: temperature_1
+      device_id: *t1_id
+    - type: TempertureSensor
+      name: temperature_2
+      device_id: *t2_id
+    - type: WaterLevelSensor
+      name: humidity
+      pin: *water_pin_1
+    - type: LcdDisplay
+      name: display
+      data_pin: *lcd_data
+      clk_pin: *lcd_clk
+      reset_pin: *lcd_reset
+    - type: MessengerFile
+      name: messenger
+      filename: state.txt
+programs:
+  monitor:
+    - type: RecurringCommand
+      command:
+        - type: MultiSensorMeasureCommand
+          termo_1: temperature_1
+          termo_2: temperature_2
+          humidity: humidity
+          power_relay: power_relay
+          cooler_relay: cooler_relay
+          valve_1_relay: valve_1_relay
+          valve_2_relay: valve_2_relay
+          display: display
+          messenger: messenger
+    - type: RecurringCommand
+      command:
+        - type: MonitorAlertCommand
+          humidity: humidity
+          power_relay: power_relay
+          threshold: 90
+          action: 0
+          rule: ge
+    - type: RecurringCommand
+      command:
+        - type: MonitorAlertCommand
+          humidity: humidity
+          buzzer: buzzer
+          threshold: 90
+          action: 1
+          rule: ge
+    - type: RecurringCommand
+      command:
+        - type: MonitorAlertCommand
+          humidity: humidity
+          buzzer: buzzer
+          threshold: 89
+          action: 0
+          rule: le

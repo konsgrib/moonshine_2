@@ -17,7 +17,7 @@ class EventLoop:
         while self.ready:
             cmd = self.ready.popleft()
             try:
-                cmd.execute()
+                cmd.execute(self)
             except Exception as e:
                 ExceptionHandler(cmd, e).handle()
             except KeyboardInterrupt:
