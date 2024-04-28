@@ -54,10 +54,10 @@ devices:
       name: buzzer
       pin: *buzzer_pin
     - type: TempertureSensor
-      name: temperature_1
+      name: termo_1
       device_id: *t1_id
     - type: TempertureSensor
-      name: temperature_2
+      name: termo_2
       device_id: *t2_id
     - type: WaterLevelSensor
       name: humidity
@@ -70,41 +70,103 @@ devices:
     - type: MessengerFile
       name: messenger
       filename: state.txt
-programs:
-  monitor:
-    - type: RecurringCommand
-      command:
-        - type: MultiSensorMeasureCommand
-          termo_1: temperature_1
-          termo_2: temperature_2
-          humidity: humidity
-          power_relay: power_relay
-          cooler_relay: cooler_relay
-          valve_1_relay: valve_1_relay
-          valve_2_relay: valve_2_relay
+programms:
+  cleanup:
+    - command:
+      type: OutputDeviceCommand
+      device: power_relay
+      action: "off"
+    - command:
+      type: DelayCommand
+      time_seconds: *cooler_delay
+    - command:
+      type: OutputDeviceCommand
+      device: power_relay
+      action: "on"
+  test:
+    - command:
+      type: OutputDeviceCommand
+      device: power_relay
+      action: "on"
+    - command:
+      type: RecurringCommand
+      commands:
+        - command: display
+          type: MultiSensorMeasureCommand
+          sensor1: termo_1
+          sensor2: termo_2
+          sensor3: humidity
+          device1: power_relay
+          device2: cooler_relay
+          device3: valve_1_relay
+          device4: valve_2_relay
           display: display
           messenger: messenger
-    - type: RecurringCommand
-      command:
-        - type: MonitorAlertCommand
-          humidity: humidity
-          power_relay: power_relay
-          threshold: 90
+        - command:
+          type: MonitorAlertCommand
+          sensor: termo_1
+          device: power_relay
+          treshold: 30
           action: 0
           rule: ge
-    - type: RecurringCommand
-      command:
-        - type: MonitorAlertCommand
-          humidity: humidity
-          buzzer: buzzer
-          threshold: 90
-          action: 1
-          rule: ge
-    - type: RecurringCommand
-      command:
-        - type: MonitorAlertCommand
-          humidity: humidity
-          buzzer: buzzer
-          threshold: 89
-          action: 0
-          rule: le
+        # - command:
+        #   type: MonitorAlertCommand
+        #   sensor: termo_1
+        #   device: buzzer
+        #   treshold: 30
+        #   action: 1
+        #   rule: ge
+        # - command:
+        #   type: MonitorAlertCommand
+        #   sensor: termo_1
+        #   device: buzzer
+        #   treshold: 30
+        #   action: 0
+        #   rule: le
+      repeat_times: Null
+
+
+
+
+
+  # monitor:
+  #   - type: RecurringCommand
+  #     command:
+  #       - type: MultiSensorMeasureCommand
+  #       - parameters:
+  #           termo_1: termo_1
+  #           termo_2: termo_2
+  #           humidity: humidity
+  #           power_relay: power_relay
+  #           cooler_relay: cooler_relay
+  #           valve_1_relay: valve_1_relay
+  #           valve_2_relay: valve_2_relay
+  #           display: display
+  #           messenger: messenger
+  #   - type: RecurringCommand
+  #     command:
+  #       - type: MonitorAlertCommand
+  #       - parameters:
+  #           humidity: humidity
+  #           power_relay: power_relay
+  #           threshold: 90
+  #           action: 0
+  #           rule: ge
+  #   - type: RecurringCommand
+  #     command:
+  #       - type: MonitorAlertCommand
+  #       - parameters:
+  #           humidity: humidity
+  #           buzzer: buzzer
+  #           threshold: 90
+  #           action: 1
+  #           rule: ge
+  #   - type: RecurringCommand
+  #     command:
+  #       - type: MonitorAlertCommand
+  #       - parameters:
+  #           humidity: humidity
+  #           buzzer: buzzer
+  #           threshold: 89
+  #           action: 0
+  #           rule: le

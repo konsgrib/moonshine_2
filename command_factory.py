@@ -13,20 +13,22 @@ class Command(ABC):
 
 
 class RecurringCommand:
-    def __init__(self, command, repeat_times=None):
-        self.command = command
+    def __init__(self, commands, repeat_times=None):
+        self.commands = commands
         self.counter = 0
         self.repeat_times = repeat_times
 
     def execute(self, event_loop):
         if self.repeat_times:
-            self.command.execute(event_loop)
-            self.counter += 1
-            if self.counter < self.repeat_times:
-                event_loop.add(self)
+            for command in self.commands:
+                self.command.execute(event_loop)
+                self.counter += 1
+                if self.counter < self.repeat_times:
+                    event_loop.add(self)
         else:
-            self.command.execute(event_loop)
-            event_loop.add(self)
+            for command in self.commands:
+                command.execute(event_loop)
+                event_loop.add(self)
 
 
 class PrintCommand(Command):
@@ -88,29 +90,78 @@ class MultiSensorMeasureCommand(Command):
 
 class MonitorAlertCommand(Command):
     rules = ["le", "ge"]
-     
+
     def __init__(
         self,
         sensor: AbstractSensor,
         device: AbstractTwoPin,
-        theshold: float,
+        treshold: float,
         action: int,
-        rule:str
+        rule: str,
     ):
         self.sensor = sensor
         self.device = device
-        self.treshold = theshold
+        self.treshold = treshold
         self.action = action
         if rule in self.rules:
             self.rule = rule
         else:
-            raise ValueError(f"Incorrect comparison rule {rule}")
+            raise ValueError(
+                f"Incorrect comparison rule {rule} "
+                f"must be in {MonitorAlertCommand.rules}"
+            )
 
     def execute(self, event_loop):
         if self.rule == "ge":
             if self.sensor.get_value().value >= self.treshold:
                 self.device.set_state(self.action)
         elif self.rule == "le":
-            if self.sensor.get_value().value <= self.treshold:
+            if self.sensor.get_value().value < self.treshold:
                 self.device.set_state(self.action)
-        
+
+
+class OutputDeviceCommand(Command):
+    def __init__(self, device: AbstractTwoPin, action: str, delay: int = 0) -> None:
+        self.device = device
+        self.action = action
+        self.delay = delay
+
+    def execute(self, event_loop):
+        if self.action == "on":
+            self.device.set_state(1)
+        elif self.action == "off":
+            self.device.set_state(0)
+        elif self.action == "onoff":
+            self.device.set_state(1)
+            sleep(self.delay)
+            self.device.set_state(0)
+
+        else:
+            raise ValueError(f"Incorrect command: {self.action}")
+
+
+class DelayCommand(Command):
+    def __init__(self, time_seconds: int) -> None:
+        self.time_seconds = time_seconds
+
+    def execute(self, event_loop):
+        sleep(self.time_seconds)
+
+
+class CommandFactory:
+    def create_command(self, type, parameters):
+        # print(f"TYPE:{type},  PARAMS: {parameters}")
+        if type == "MonitorAlertCommand":
+            return MonitorAlertCommand(**parameters)
+        elif type == "MultiSensorMeasureCommand":
+            return MultiSensorMeasureCommand(**parameters)
+        elif type == "RecurringCommand":
+            return RecurringCommand(**parameters)
+        elif type == "SensorMeasureCommand":
+            return SensorMeasureCommand(**parameters)
+        elif type == "OutputDeviceCommand":
+            return OutputDeviceCommand(**parameters)
+        elif type == "DelayCommand":
+            return DelayCommand(**parameters)
+        else:
+            raise ValueError("Unknown type", type)

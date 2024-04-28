@@ -1,18 +1,14 @@
 import RPi.GPIO as GPIO
 
-from yaml_reader import config_parser, create_events_queue
+from config_parser import ProgramBuilder
 from event_loop import EventLoop
-
-
 GPIO.setmode(GPIO.BCM)
 
-config_yaml = "config.yaml"
-config, devices = config_parser(config_yaml)
+config_yaml = "monitor.yaml"
+program = ProgramBuilder(config_yaml).get_program("test")
 
-
-queue_cmd = create_events_queue("cycle_1")
-event_loop = EventLoop()
-for command in queue_cmd:
-    event_loop.add(command)
-event_loop.run()
+el = EventLoop()
+for cmd in program:
+    el.add(cmd)
+el.run()
 GPIO.cleanup()

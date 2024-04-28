@@ -14,16 +14,15 @@ def read_yaml_config(config_yaml):
         config = yaml.safe_load(f)
     return config
 
+
 def get_devices(config):
-    devices =config["devices"]
+    devices = config["devices"]
     return devices
 
 
-
-def get_programs(config): 
+def get_programs(config):
     programs = {program: details for program, details in config["programs"].items()}
     return programs
-
 
 
 def create_events_queue(program, config, devices):

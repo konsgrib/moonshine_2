@@ -9,24 +9,25 @@ from output.two_pin.buzzer import Buzzer
 from display import LcdDisplay
 from messenger_file import MessengerFile
 
+
 class AbstractFactory(ABC):
     @abstractmethod
-    def create_sensor(self):
+    def create_device(self):
         pass
 
 
 class Factory(AbstractFactory):
-    sensor_types = {
+    device_types = {
         "TempertureSensor": TempertureSensor,
         "WaterLevelSensor": WaterLevelSensor,
         "HumidityLevelSensor": HumidityLevelSensor,
-        "Relay":Relay,
+        "Relay": Relay,
         "Buzzer": Buzzer,
         "LcdDisplay": LcdDisplay,
-        "MessengerFile": MessengerFile
+        "MessengerFile": MessengerFile,
     }
 
-    def create_sensor(self, sensor_type, **kwargs):
-        if sensor_type in Factory.sensor_types:
-            return Factory.sensor_types[sensor_type](**kwargs)
+    def create_device(self, sensor_type, **kwargs):
+        if sensor_type in Factory.device_types:
+            return Factory.device_types[sensor_type](**kwargs)
         raise ValueError(f"Invalid sensor type: {sensor_type}")
