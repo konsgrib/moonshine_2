@@ -32,11 +32,12 @@ class RecurringCommand:
 
 
 class PrintCommand(Command):
-    def __init__(self, text):
+    def __init__(self, device: AbstractMessenger, text: str):
         self.text = text
+        self.device = device
 
     def execute(self, event_loop):
-        print(self.text)
+        self.device.send_message(self.text)
 
 
 class SensorMeasureCommand(Command):
@@ -112,12 +113,46 @@ class MonitorAlertCommand(Command):
             )
 
     def execute(self, event_loop):
+        print("MonitorAlertCommand")
+        sleep(1)
         if self.rule == "ge":
             if self.sensor.get_value().value >= self.treshold:
                 self.device.set_state(self.action)
+                event_loop.clear_until(self)
         elif self.rule == "le":
             if self.sensor.get_value().value < self.treshold:
                 self.device.set_state(self.action)
+
+
+
+class BlockingCounterAVGCommand(Command):
+    def __init__(self, sensor: AbstractSensor):
+        self.sensor = sensor
+        self.values = []
+        self.average_value = 0.0
+
+    def execute(self, event_loop):
+        for _ in range(10):
+            self.values.append(self.sensor.get_value().value)
+        self.average_value = sum(self.values) / len(self.values)
+
+        while self.sensor.get_value().value < self.average_value + 0.3:
+            print(
+                f"SENSOR VALUE: {self.sensor.get_value().value} AVG: {self.average_value}"
+            )
+            self.values.append(self.sensor.get_value().value)
+            self.average_value = sum(self.values) / len(self.values)
+
+
+class BlockingStateUpdateCommand(Command):
+    def __init__(self, sensor: AbstractSensor, treshold: float):
+        self.sensor = sensor
+        self.treshold = treshold
+
+    def execute(self, event_loop):
+        while self.sensor.get_value().value < self.treshold:
+            print("SENSOR VALUE: ", self.sensor.get_value().value)
+            sleep(1)
 
 
 class OutputDeviceCommand(Command):
@@ -145,7 +180,20 @@ class DelayCommand(Command):
         self.time_seconds = time_seconds
 
     def execute(self, event_loop):
+        print("DelayCommand")
         sleep(self.time_seconds)
+
+
+class StopCommand(Command):
+    def execute(self, event_loop):
+        print("StopCommand")
+        raise StopIteration
+
+
+class ClearQueue(Command):
+    def execute(self, event_loop):
+        print("ClearQueue")
+        event_loop.clear()  
 
 
 class CommandFactory:
@@ -163,5 +211,13 @@ class CommandFactory:
             return OutputDeviceCommand(**parameters)
         elif type == "DelayCommand":
             return DelayCommand(**parameters)
+        elif type == "BlockingStateUpdateCommand":
+            return BlockingStateUpdateCommand(**parameters)
+        elif type == "PrintCommand":
+            return PrintCommand(**parameters)
+        elif type == "StopCommand":
+            return StopCommand(**parameters)
+        elif type == "ClearQueue":
+            return ClearQueue(**parameters)
         else:
             raise ValueError("Unknown type", type)

@@ -59,7 +59,7 @@ class RepeaterCommand(Command):
             self.cmd.execute()
 
 
-class CounterAVGCommand(Command):
+class BlockingCounterAVGCommand(Command):
     def __init__(self, sensor: AbstractSensor):
         self.sensor = sensor
         self.values = []

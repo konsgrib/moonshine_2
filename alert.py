@@ -5,7 +5,7 @@ from event_loop import EventLoop
 GPIO.setmode(GPIO.BCM)
 
 config_yaml = "programs.yaml"
-program = ProgramBuilder(config_yaml).get_program("display")
+program = ProgramBuilder(config_yaml).get_program("alert")
 
 el = EventLoop()
 for cmd in program:

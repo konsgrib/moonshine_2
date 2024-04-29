@@ -9,8 +9,8 @@ power_inc_clicks: &restore_power 50
 power_inc_click_time: &restore_click_time 0.5
 power_dec_pressed_time: 0.152
 pins:
-  humidity_1: &sensor_hum 14
-  humidity_2: 15
+  humidity_1: &sensor_hum_1 14
+  humidity_2: &sensor_hum_2 15
   buzzer: &buzzer_pin 26
   relay:
     power_relay_pin: &rel_pwr_pin 19
@@ -59,8 +59,11 @@ devices:
     - type: TempertureSensor
       name: termo_2
       device_id: *t2_id
-    - type: WaterLevelSensor
+    - type: HumidityLevelSensor
       name: humidity
+      pin: *sensor_hum_1
+    - type: WaterLevelSensor
+      name: water_level_1
       pin: *water_pin_1
     - type: LcdDisplay
       name: display
@@ -71,20 +74,8 @@ devices:
       name: messenger
       filename: state.txt
 programms:
-  cleanup:
-    - command:
-      type: OutputDeviceCommand
-      device: power_relay
-      action: "off"
-    - command:
-      type: DelayCommand
-      time_seconds: *cooler_delay
-    - command:
-      type: OutputDeviceCommand
-      device: power_relay
-      action: "on"
-  test:
-    - command:
+  display: 
+    - command: DisplayData
       type: OutputDeviceCommand
       device: power_relay
       action: "on"
@@ -102,28 +93,83 @@ programms:
           device4: valve_2_relay
           display: display
           messenger: messenger
-        - command:
+      repeat_times: Null
+  alert:
+    - command: MonitorHumity
+      type: RecurringCommand
+      commands:
+        - command: PowerOff
           type: MonitorAlertCommand
-          sensor: termo_1
+          sensor: humidity
           device: power_relay
-          treshold: 30
+          treshold: 80
           action: 0
           rule: ge
-        # - command:
-        #   type: MonitorAlertCommand
-        #   sensor: termo_1
-        #   device: buzzer
-        #   treshold: 30
-        #   action: 1
-        #   rule: ge
-        # - command:
-        #   type: MonitorAlertCommand
-        #   sensor: termo_1
-        #   device: buzzer
-        #   treshold: 30
-        #   action: 0
-        #   rule: le
+        - command: BuzzerOn
+          type: MonitorAlertCommand
+          sensor: humidity
+          device: buzzer
+          treshold: 80
+          action: 1
+          rule: ge
+        - command: BuzzerOff
+          type: MonitorAlertCommand
+          sensor: humidity
+          device: buzzer
+          treshold: 80
+          action: 0
+          rule: le
       repeat_times: Null
+
+  cycle1:
+    - command:
+      type: PrintCommand
+      device: messenger
+      text: "1:1"
+    - command: PowerOn
+      type: OutputDeviceCommand
+      device: power_relay
+      action: "on"
+    - command: 
+      type: BlockingStateUpdateCommand
+      sensor: termo_1
+      treshold: *min_t
+    - command:
+      type: PrintCommand
+      device: messenger
+      text: "2:1"
+    - command: 
+      type: OutputDeviceCommand
+      device: cooler_relay
+      action: "on"
+    - command: 
+      type: BlockingStateUpdateCommand
+      sensor: termo_1
+      treshold: *max_t
+    - command:
+      type: PrintCommand
+      device: messenger
+      text: "3:1"
+    - command: 
+      type: OutputDeviceCommand
+      device: power_relay
+      action: "off"
+    - command: delay
+      type: DelayCommand
+      time_seconds: *cooler_delay
+    - command:
+      type: PrintCommand
+      device: messenger
+      text: "4:1"
+    - command: PowerOff
+      type: OutputDeviceCommand
+      device: cooler_relay
+      action: "off"
+    - command:
+      type: PrintCommand
+      device: messenger
+      text: ""
+
 
 
 
